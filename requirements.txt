@@ -1,0 +1,7 @@
+# Python dependencies not resolved by rosdep / apt.
+# ROS 2 packages (rclpy, sensor_msgs, cv_bridge, tf2_ros,
+# nav2_simple_commander, apriltag_msgs) come from your ROS 2 install.
+ultralytics>=8.0.0
+opencv-python>=4.5.0
+numpy>=1.21.0
+matplotlib>=3.4.0

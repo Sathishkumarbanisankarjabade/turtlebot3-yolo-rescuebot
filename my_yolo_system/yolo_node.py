@@ -6,6 +6,7 @@ import cv2
 import time
 import os
 from ultralytics import YOLO
+from ament_index_python.packages import get_package_share_directory
 
 # Libraries to listen to robot position
 from tf2_ros import TransformException
@@ -22,8 +23,11 @@ class YoloNode(Node):
             10)
         self.br = CvBridge()
         
-        # Load your model
-        self.model = YOLO('/home/bani/tb3_ws/src/my_yolo_system/my_yolo_system/qr_best.pt')
+        # Load the model from the installed package share directory so the
+        # path works regardless of workspace location.
+        model_path = os.path.join(
+            get_package_share_directory('my_yolo_system'), 'models', 'qr_best.pt')
+        self.model = YOLO(model_path)
 
         # Setup position listener
         self.tf_buffer = Buffer()

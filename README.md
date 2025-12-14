@@ -1,179 +1,182 @@
 # turtlebot3-yolo-rescuebot
 
-ROS 2 and Gazebo-based TurtleBot3 project for search-and-rescue style simulation with YOLO object detection, patrol behavior, follower logic, and custom environment assets.
+A ROS 2 + Gazebo TurtleBot3 project for **search-and-rescue (SAR) style
+simulation** with YOLOv8 object detection, Nav2-based patrol behaviour, an
+AprilTag smart-follower, and a custom indoor rescue world.
 
-## Overview
+The ROS 2 package inside this repository is named **`my_yolo_system`**.
 
-`turtlebot3-yolo-rescuebot` is a robotics project built for simulation-based development using TurtleBot3, ROS 2, and Gazebo. The repository includes YOLO-based perception, autonomous behavior scripts, utility tools, and a custom search-and-rescue world for testing and experimentation.
-
-The project is designed to support object detection and robot behavior development in a simulated indoor rescue environment.
+---
 
 ## Features
 
-- YOLO-based object detection
-- ROS 2 integration
-- TurtleBot3 simulation workflow
-- Custom Gazebo world for search-and-rescue scenarios
-- Patrol behavior script
-- Smart follower behavior script
-- CSV plotting utility for result visualization
-- Pretrained and custom model weights
+- 🔍 **YOLOv8 object detection** node that logs geo-tagged photo evidence
+- 🗺️ **Nav2 patrol** behaviour that visits checkpoints and spins to scan for QR codes
+- 🏷️ **AprilTag smart-follower** that chases, visits, and remembers tags with obstacle avoidance
+- 🏠 **Custom Gazebo SAR world** (`sar_room_world.sdf`)
+- 📈 **CSV plotting utility** for comparing odometry vs. a velocity motion model
+- 📦 Proper **ament_python** package layout (`colcon build` ready)
+
+---
 
 ## Repository Structure
 
 ```text
 turtlebot3-yolo-rescuebot/
+├── LICENSE
 ├── README.md
-├── __init__.py
-├── patrol.py
-├── plot_csv.py
-├── qr_best.pt
-├── sar_room_world.sdf
-├── setup.py
-├── smart_follower.py
-├── yolo_node.py
-└── yolov8n.pt
-File Descriptions
-yolo_node.py
+├── package.xml                 # ROS 2 (ament) manifest
+├── setup.py                    # Package + entry points
+├── setup.cfg
+├── requirements.txt            # Non-ROS Python deps (ultralytics, etc.)
+├── resource/
+│   └── my_yolo_system          # ament resource-index marker
+├── launch/
+│   └── detection.launch.py     # Launches the YOLO detection node
+├── worlds/
+│   └── sar_room_world.sdf       # Custom SAR Gazebo world
+├── models/
+│   ├── yolov8n.pt              # YOLOv8 nano pretrained weights
+│   └── qr_best.pt              # Custom-trained QR/object weights
+└── my_yolo_system/
+    ├── __init__.py
+    ├── yolo_node.py            # YOLO detection ROS 2 node
+    ├── patrol.py               # Nav2 patrol behaviour
+    ├── smart_follower.py       # AprilTag follower behaviour
+    └── plot_csv.py             # Motion-data plotting utility
+```
 
-ROS 2 node for running YOLO-based object detection.
+---
 
-yolov8n.pt
+## Nodes & Executables
 
-YOLOv8 nano pretrained weights.
+| Executable        | Source                | Description                                                        |
+| ----------------- | --------------------- | ----------------------------------------------------------------- |
+| `yolo_node`       | `yolo_node.py`        | Subscribes to `/camera/image_raw`, runs YOLOv8, and saves geo-tagged evidence to `~/mission_evidence/`. |
+| `patrol`          | `patrol.py`           | Drives the robot through Nav2 checkpoints and spins 360° to scan.  |
+| `smart_follower`  | `smart_follower.py`   | Follows AprilTags on `/detections` with LiDAR obstacle avoidance.  |
+| `plot_csv`        | `plot_csv.py`         | Plots odometry vs. predicted path from a CSV log.                  |
 
-qr_best.pt
+---
 
-Custom trained weights for specific object detection tasks.
+## Requirements
 
-smart_follower.py
+- Ubuntu 22.04
+- ROS 2 Humble
+- Python 3.10+
+- Gazebo + TurtleBot3 packages
+- Nav2 (`nav2_simple_commander`) — for `patrol`
+- `apriltag_msgs` + an AprilTag detector — for `smart_follower`
+- Python libs: `ultralytics`, `opencv-python`, `numpy`, `matplotlib`
 
-Behavior script for follower-style robot movement based on target or detection logic.
+Install the non-ROS Python dependencies:
 
-patrol.py
+```bash
+pip install -r requirements.txt
+```
 
-Behavior script for autonomous patrol movement.
+Install ROS dependencies with rosdep (run from your workspace root):
 
-plot_csv.py
+```bash
+rosdep install --from-paths src --ignore-src -r -y
+```
 
-Utility script for plotting CSV-based logged results.
+---
 
-sar_room_world.sdf
+## Installation & Build
 
-Custom Gazebo world for indoor search-and-rescue simulation.
+Clone into the `src` folder of a ROS 2 workspace and build with colcon:
 
-setup.py
-
-Python package setup configuration.
-
-__init__.py
-
-Python package initializer.
-
-
-
-
-
-Requirements
-
-Recommended setup:
-
-Ubuntu 22.04
-ROS 2 Humble
-Python 3.10 or newer
-Gazebo
-TurtleBot3 packages
-OpenCV
-NumPy
-Ultralytics YOLO
-Installation
-
-
-
-
-Clone the repository into your ROS 2 workspace:
-
+```bash
+mkdir -p ~/tb3_ws/src
 cd ~/tb3_ws/src
-git clone https://github.com/Banisankar/turtlebot3-yolo-rescuebot.git
+git clone https://github.com/Sathishkumarbanisankarjabade/turtlebot3-yolo-rescuebot.git
+
 cd ~/tb3_ws
 source /opt/ros/humble/setup.bash
-colcon build
+colcon build --packages-select my_yolo_system
 source install/setup.bash
-Environment Setup
+```
 
+Verify the package is visible:
 
-
-
-Before running the package, source ROS 2 and your workspace:
-
-source /opt/ros/humble/setup.bash
-cd ~/tb3_ws
-source install/setup.bash
-
-
-
-To check whether the package is visible:
-
+```bash
 ros2 pkg list | grep my_yolo_system
-Running the YOLO Node
+```
 
+> Every new terminal must run `source /opt/ros/humble/setup.bash` and
+> `source ~/tb3_ws/install/setup.bash` before using the package.
 
+---
 
-Run the detection node after sourcing the workspace:
+## Usage
 
-source /opt/ros/humble/setup.bash
-cd ~/tb3_ws
-source install/setup.bash
+### 1. Launch the SAR world (Gazebo + TurtleBot3)
+
+Set your TurtleBot3 model and start Gazebo with the custom world. The world
+file is installed into the package share directory:
+
+```bash
+export TURTLEBOT3_MODEL=burger
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py \
+  world:=$(ros2 pkg prefix my_yolo_system)/share/my_yolo_system/worlds/sar_room_world.sdf
+```
+
+You can also open the world directly in Gazebo for inspection:
+
+```bash
+gazebo $(ros2 pkg prefix my_yolo_system)/share/my_yolo_system/worlds/sar_room_world.sdf
+```
+
+### 2. Run the YOLO detection node
+
+```bash
 ros2 run my_yolo_system yolo_node
-Running Patrol Behavior
-source /opt/ros/humble/setup.bash
-cd ~/tb3_ws
-source install/setup.bash
-python3 patrol.py
-Running Smart Follower
-source /opt/ros/humble/setup.bash
-cd ~/tb3_ws
-source install/setup.bash
-python3 smart_follower.py
-Gazebo World
+# or via launch file:
+ros2 launch my_yolo_system detection.launch.py
+```
 
+Detections above the confidence threshold are saved (throttled to one every
+5 s) to `~/mission_evidence/` as a photo plus an entry in `mission_report.txt`,
+tagged with the robot's `map → base_footprint` position.
 
+### 3. Run the patrol behaviour (requires Nav2 active)
 
-This repository includes a custom Gazebo world file:
+```bash
+ros2 run my_yolo_system patrol
+```
 
-sar_room_world.sdf
+### 4. Run the AprilTag smart-follower
 
-You can open it with Gazebo using:
+```bash
+ros2 run my_yolo_system smart_follower
+```
 
-gazebo sar_room_world.sdf
+### 5. Plot motion results
 
-Depending on your project setup, this world may also be launched through a ROS 2 launch file.
+```bash
+ros2 run my_yolo_system plot_csv ~/motion_data.csv
+# or directly:
+python3 my_yolo_system/plot_csv.py ~/motion_data.csv
+```
 
+The CSV is expected to have a header row followed by
+`index, real_x, real_y, pred_x, pred_y` columns.
 
+---
 
-Plotting Results
+## Notes
 
-To plot CSV results:
+- Model weights are installed to the package share directory and loaded by
+  `yolo_node` via `ament_index_python`, so no absolute paths need editing.
+- If ROS 2 cannot detect the package, re-run `colcon build` and re-`source`
+  the workspace.
+- Behaviour scripts assume the standard TurtleBot3 topics
+  (`/cmd_vel`, `/scan`, `/camera/image_raw`) and a running Nav2 stack where
+  applicable.
 
-python3 plot_csv.py
+---
 
-Make sure the script points to the correct CSV file path before running it.
+## License
 
-Build Notes
-Ensure all Python dependencies are installed before building.
-Make sure model file paths are correct inside the scripts.
-If ROS 2 cannot detect the package, rebuild the workspace and source it again.
-The ROS 2 package name used in this project is my_yolo_system.
-The executable registered in setup.py is yolo_node.
-Applications
-
-
-
-This project can be used for:
-
-robot perception experiments
-object detection in simulation
-TurtleBot3-based robotics development
-search-and-rescue scenario prototyping
-ROS 2 and Gazebo practice
-YOLO integration in mobile robotics
+Released under the [MIT License](LICENSE).

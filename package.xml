@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>my_yolo_system</name>
+  <version>0.1.0</version>
+  <description>
+    ROS 2 / Gazebo TurtleBot3 search-and-rescue simulation package with YOLOv8
+    object detection, Nav2-based patrol behaviour, an AprilTag smart-follower,
+    a custom indoor SAR world, and result-plotting utilities.
+  </description>
+
+  <maintainer email="jabadesbanisankar@gmail.com">Sathishkumar Banisankar Jabade</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <!-- Core ROS 2 client + message dependencies -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+
+  <!-- Navigation (patrol.py) -->
+  <exec_depend>nav2_simple_commander</exec_depend>
+
+  <!-- AprilTag follower (smart_follower.py) -->
+  <exec_depend>apriltag_msgs</exec_depend>
+
+  <!-- Python / system libraries -->
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-matplotlib</exec_depend>
+  <!-- ultralytics (YOLOv8) is not packaged for rosdep; install via requirements.txt -->
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
