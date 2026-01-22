@@ -8,6 +8,19 @@ The ROS 2 package inside this repository is named **`my_yolo_system`**.
 
 ---
 
+## Project Timeline
+
+- **Academic development period:** October 2025 – January 2026
+- **Case-study completion / viva:** January 2026
+- **Repository restructuring & public documentation:** July 2026
+
+The perception, navigation, and follower work was developed and assessed as an
+academic case study between October 2025 and January 2026, with the viva
+completed in January 2026. The repository was subsequently cleaned, packaged as
+a proper ROS 2 (`ament_python`) package, documented, and published in July 2026.
+
+---
+
 ## Features
 
 - 🔍 **YOLOv8 object detection** node that logs geo-tagged photo evidence
