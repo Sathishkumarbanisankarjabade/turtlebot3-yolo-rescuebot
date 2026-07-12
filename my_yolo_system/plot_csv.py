@@ -25,6 +25,12 @@ def main(args=None):
         default=os.path.expanduser('~/motion_data.csv'),
         help='Path to the motion data CSV (default: ~/motion_data.csv)',
     )
+    parser.add_argument(
+        '--save',
+        default=None,
+        help='Save the plot to this image path instead of showing a window '
+             '(useful for headless/CI runs).',
+    )
     parsed = parser.parse_args(args=args)
     file_path = os.path.expanduser(parsed.csv_path)
 
@@ -53,7 +59,12 @@ def main(args=None):
     plt.legend()
     plt.grid(True)
     plt.axis('equal')  # Important to see the curve correctly
-    plt.show()
+
+    if parsed.save:
+        plt.savefig(parsed.save, dpi=120, bbox_inches='tight')
+        print(f"Saved plot to {parsed.save}")
+    else:
+        plt.show()
 
 
 if __name__ == '__main__':

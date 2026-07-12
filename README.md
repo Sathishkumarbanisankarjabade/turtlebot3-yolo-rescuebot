@@ -12,12 +12,12 @@ The ROS 2 package inside this repository is named **`my_yolo_system`**.
 
 - **Academic development period:** October 2025 – January 2026
 - **Case-study completion / viva:** January 2026
-- **Repository restructuring & public documentation:** July 2026
+- **Repository restructuring & documentation:** July 2026
 
 The perception, navigation, and follower work was developed and assessed as an
 academic case study between October 2025 and January 2026, with the viva
 completed in January 2026. The repository was subsequently cleaned, packaged as
-a proper ROS 2 (`ament_python`) package, documented, and published in July 2026.
+a proper ROS 2 (`ament_python`) package, and documented in July 2026.
 
 ---
 
@@ -171,10 +171,47 @@ ros2 run my_yolo_system smart_follower
 ros2 run my_yolo_system plot_csv ~/motion_data.csv
 # or directly:
 python3 my_yolo_system/plot_csv.py ~/motion_data.csv
+# headless / CI: save to a file instead of opening a window
+python3 my_yolo_system/plot_csv.py ~/motion_data.csv --save motion_plot.png
 ```
 
 The CSV is expected to have a header row followed by
 `index, real_x, real_y, pred_x, pred_y` columns.
+
+---
+
+## Reproducibility status
+
+Honest account of what has been verified vs. what still needs a fuller host
+(re-checked 2026-07-12 on ROS 2 Humble + Gazebo Classic 11, CPU-only inference).
+
+**✅ Verified on this machine**
+
+- `colcon build --packages-select my_yolo_system` builds cleanly; all four
+  executables (`yolo_node`, `patrol`, `smart_follower`, `plot_csv`) register.
+- `yolo_node`, `patrol`, `plot_csv` import successfully.
+- **YOLO inference runs** — `yolov8n.pt` ≈17 ms/frame and the custom `qr_best.pt`
+  ≈16 ms/frame on CPU (imgsz 640). Static-image detection:
+
+  ![YOLOv8n detection on a static test frame](docs/yolov8n_static_detection.jpg)
+
+  *Static-image benchmark of YOLOv8n (7 cars + 1 person). This is a still-image
+  run to validate the inference path — **not** a live Gazebo capture.*
+
+- `plot_csv.py` renders correctly (shown here on **synthetic** motion data):
+
+  ![plot_csv on synthetic data](docs/plot_csv_synthetic.png)
+
+**⚠️ Requires a fuller host / not run here (no fabricated screenshots)**
+
+- **Full Gazebo end-to-end run** (robot spawned in the SAR world, live
+  camera/scan, Nav2 driving the patrol) — needs a GUI-capable ROS 2 + Gazebo host.
+- **`smart_follower`** needs `apriltag_msgs` **and** an AprilTag detector node
+  publishing `/detections`; it will not import without `apriltag_msgs` installed.
+- **World model dependency:** `worlds/sar_room_world.sdf` includes
+  `model://qr_cube` (the QR targets) but that model is **not yet bundled** in the
+  repo, so a fresh clone must provide `qr_cube` on `GAZEBO_MODEL_PATH` for the
+  targets to appear. See Notes.
 
 ---
 
@@ -187,6 +224,14 @@ The CSV is expected to have a header row followed by
 - Behaviour scripts assume the standard TurtleBot3 topics
   (`/cmd_vel`, `/scan`, `/camera/image_raw`) and a running Nav2 stack where
   applicable.
+- **Known gap — `qr_cube` model:** the SAR world `<include>`s `model://qr_cube`
+  for the QR scan targets, but that model is not currently vendored in this repo.
+  Until it is added under a `models/qr_cube/` directory (or supplied on
+  `GAZEBO_MODEL_PATH`), Gazebo will log `Unable to find uri[model://qr_cube]` and
+  the targets will be missing. `ground_plane`/`sun` resolve as built-ins.
+- `patrol.py` is a **Nav2 waypoint patrol** (six hardcoded goals + a 360° spin at
+  each); it is not a frontier/exploration planner. `smart_follower.py` is an
+  **AprilTag follower** with LiDAR obstacle avoidance and visited-tag memory.
 
 ---
 
