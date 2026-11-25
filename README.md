@@ -193,14 +193,14 @@ Honest account of what has been verified vs. what still needs a fuller host
 - **YOLO inference runs** — `yolov8n.pt` ≈17 ms/frame and the custom `qr_best.pt`
   ≈16 ms/frame on CPU (imgsz 640). Static-image detection:
 
-  ![YOLOv8n detection on a static test frame](docs/yolov8n_static_detection.jpg)
+  ![YOLOv8n detection on a static test frame]
 
   *Static-image benchmark of YOLOv8n (7 cars + 1 person). This is a still-image
   run to validate the inference path — **not** a live Gazebo capture.*
 
 - `plot_csv.py` renders correctly (shown here on **synthetic** motion data):
 
-  ![plot_csv on synthetic data](docs/plot_csv_synthetic.png)
+  ![plot_csv on synthetic data]
 
 **⚠️ Requires a fuller host / not run here (no fabricated screenshots)**
 
